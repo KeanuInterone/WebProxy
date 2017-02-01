@@ -25,3 +25,4 @@ while True:
     #START A NEW PROCESS FOR THE REQUEST
     procces = Process(target=ProxyRequestHandler.handleRequest, args=(connectionSocket,))
     procces.start()
+    connectionSocket.close()
