@@ -1,5 +1,6 @@
 from socket import *
 badRequestResponse = "HTTP/1.0 400 Bad Request"
+methodNotImplementedResponse = "method not implemented"
 
 def handleRequest(connectionSocket):
     #RECEIVE THE REQUEST
@@ -16,6 +17,16 @@ def handleRequest(connectionSocket):
         URL = splitRequest[1]
         httpVersion = splitRequest[2]
     except Exception as e:
+        connectionSocket.send(badRequestResponse.encode())
+        connectionSocket.close()
+        return
+
+    #CHECK METHOD AND ABSOLUTE URL
+    if method != "GET":
+        connectionSocket.send(methodNotImplementedResponse.encode())
+        connectionSocket.close()
+        return
+    if URL[:7] != "http://":
         connectionSocket.send(badRequestResponse.encode())
         connectionSocket.close()
         return
