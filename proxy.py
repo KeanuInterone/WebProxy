@@ -20,6 +20,7 @@ print("The server is ready to use")
 while True:
     #STEP 1: RECIEVE THE REQUEST
     connectionSocket, address = serverSocket.accept()
+    print("we've connected!")
 
     #START A NEW PROCESS FOR THE REQUEST
     procces = Process(target=ProxyRequestHandler.handleRequest, args=(connectionSocket,))
