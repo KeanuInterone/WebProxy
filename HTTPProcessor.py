@@ -1,6 +1,7 @@
 
 BAD_REQUEST = "BAD_REQUEST"
-MEHTOD_NOT_IMPLEMENTED = "METHOD_NOT_IMPLEMENTED"
+HTTP_OK = "HTTP/1.0 200 OK"
+HTTP_OK1 = "HTTP/1.1 200 OK"
 
 class HTTPRequest:
     flag = ""
@@ -54,3 +55,45 @@ def processRequest(requestString):
 
     #RETURN THE FORMATED REQUEST
     return request
+
+
+class HTTPResponse:
+    responseStatus = ""
+    response = ""
+
+def processResponse(responseString):
+    
+    response = HTTPResponse()
+    
+    #SPLIT THE RESPONSE FOR RESPONSE STATUS
+    responseStatus = responseString.split('\r\n', maxsplit=1)
+    print(responseStatus[0])
+    response.responseStatus = responseStatus
+    
+    #WHOLE RESPONSE
+    response.response = responseString
+    
+    #RETURN THE RESPONSE
+    return response
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

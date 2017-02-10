@@ -17,7 +17,7 @@ def handleRequest(connectionSocket):
         if requestBytes.decode()[-4:] == "\r\n\r\n": break
     requestString = requestBytes.decode()
 
-    #CHECK THE FORMAT OF THE REQUEST
+    #PROCESS THE CLIENT REQUEST
     request = HTTPProcessor.processRequest(requestString)
 
     if request.flag == HTTPProcessor.BAD_REQUEST:
@@ -42,6 +42,15 @@ def handleRequest(connectionSocket):
         data = httpSocket.recv(2048)
         if not data: break
         response += data
+
+    #PROCESS THE SERVER RESPONSE
+    serverResponse = HTTPProcessor.processResponse(response.decode("utf-8", "replace"))
+
+    #CHECK TO SEE IF RESPONSE WAS GOOD
+    if (serverResponse.responseStatus != HTTPProcessor.HTTP_OK) & (serverResponse.responseStatus != HTTPProcessor.HTTP_OK1):
+        connectionSocket.send(badRequestResponse.encode())
+        connectionSocket.close()
+        return
 
     #CONVERT THE TEXT INTO A MD5
     fileMD5 = hashlib.md5(response).digest()
