@@ -1,4 +1,5 @@
 from socket import *
+import hashlib
 badRequestResponse = "HTTP/1.0 400 Bad Request"
 
 def handleRequest(connectionSocket):
@@ -55,6 +56,25 @@ def handleRequest(connectionSocket):
         data = httpSocket.recv(2048)
         if not data: break
         response += data
+
+    #CONVERT THE TEXT INTO A MD5
+    fileMD5 = hashlib.md5(response).digest()
+
+    #CONNECT TO  hash.cymru.com AND SEND MD5
+    cymruSocket = socket(AF_INET, SOCK_STREAM)
+    cymruSocket.connect(("hash.cymru.com", 43))
+    print("connected to the cymru server")
+    #cymruRequest = "begin\r\n" + fileMD5.decode() + "\r\nend\r\n"
+    cymruSocket.send(fileMD5)
+    #print("sent " + fileMD5.decode() + " to the cymru server")
+
+    #GET THE RESPONSE BACK FROM CYMRU
+    cymruResponse = b''
+    while True:
+        data = httpSocket.recv(2048)
+        if not data: break
+        cymruResponse += data
+    print("cyrmu response: " + cymruResponse.decode())
 
     #STEP 4: SEND RESPONSE BACK TO CLIENT
     connectionSocket.send(response)
