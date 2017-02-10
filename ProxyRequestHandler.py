@@ -1,6 +1,13 @@
 from socket import *
 import hashlib
+import HTTPProcessor
+
+
+
 badRequestResponse = "HTTP/1.0 400 Bad Request"
+mneResponse = "mehtod not implemented"
+#BAD_REQUEST = "BAD_REQUEST"
+MEHTOD_NOT_IMPLEMENTED = "METHOD_NOT_IMPLEMENTED"
 
 def handleRequest(connectionSocket):
     #RECEIVE THE REQUEST
@@ -8,47 +15,26 @@ def handleRequest(connectionSocket):
     while True:
         requestBytes += connectionSocket.recv(2048)
         if requestBytes.decode()[-4:] == "\r\n\r\n": break
-    request = requestBytes.decode()
-    
-    #SPLIT THE REQUEST
-    splitRequest = request.split(maxsplit=3)
-    try:
-        method = splitRequest[0]
-        URL = splitRequest[1]
-        httpVersion = splitRequest[2]
-    except Exception as e:
+    requestString = requestBytes.decode()
+
+    #CHECK THE FORMAT OF THE REQUEST
+    request = HTTPProcessor.processRequest(requestString)
+
+    if request.flag == HTTPProcessor.BAD_REQUEST:
         connectionSocket.send(badRequestResponse.encode())
         connectionSocket.close()
         return
-
-    #PARCE THE URL
-    try:
-        splitURL = URL.split('/', maxsplit=3)
-        serverName = splitURL[2]
-        pathName = splitURL[3]
-    except Exception as e:
-        connectionSocket.send(badRequestResponse.encode())
+    if request.method != "GET":
+        connectionSocket.send(mneResponse.encode())
         connectionSocket.close()
         return
 
-    #GRAB HEADERS IF ANY
-    try:
-        headers = splitRequest[3]
-    except Exception as e:
-        headers = ""
-
-    #FORMAT THE REQUEST FOR THE SERVER
-    request = "GET /" + pathName + " " + httpVersion + "\r\n"
-    request += "Host: " + serverName + "\r\n"
-    request += "Conection: close" + "\r\n"
-    request += headers + "\r\n\r\n"
-
-    print(request)
+    print(request.relativeFormat)
 
     #SEND REQUEST TO THE SERVER
     httpSocket = socket(AF_INET, SOCK_STREAM)
-    httpSocket.connect((serverName, 80))
-    httpSocket.send(request.encode())
+    httpSocket.connect((request.serverName, 80))
+    httpSocket.send(request.relativeFormat.encode())
 
     #RECEIVE THE RESPONSE FROM THE SERVER
     response = b''
