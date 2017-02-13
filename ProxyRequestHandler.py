@@ -2,7 +2,8 @@ from socket import *
 import hashlib
 import HTTPProcessor
 
-
+GOOD_RESPONSE = "HTTP/1.0 200 OK"
+FOUND_MALWARE_HTML = "<h1>Sight was blocked, maleware was detected!</h1>"
 METHOD_NOT_IMPLEMENTED = "HTTP/1.0 501 NOT_IMPLEMENTED"
 BAD_REQUEST= "HTTP/1.0 400 BAD_REQUEST"
 
@@ -80,7 +81,8 @@ def handleRequest(connectionSocket):
         connectionSocket.close()
         return
     else:
-        connectionSocket.send("file was not safe")
+        foundMalwareResponse = GOOD_RESPONSE + "\r\n\r\n" + FOUND_MALWARE_HTML
+        connectionSocket.send(foundMalwareResponse.encode())
         connectionSocket.close()
         return
 
